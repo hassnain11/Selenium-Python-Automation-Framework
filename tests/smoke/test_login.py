@@ -6,7 +6,9 @@ def test_valid_login(driver):
 
     login = LoginPage(driver)
 
-    login.login(STANDARD_USERNAME, STANDARD_PASSWORD)
+    inventory = login.login(
+        STANDARD_USERNAME,
+        STANDARD_PASSWORD
+    )
 
-    assert "inventory.html" in driver.current_url
-
+    assert inventory.is_inventory_page_displayed()
