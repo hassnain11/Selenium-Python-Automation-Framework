@@ -1,25 +1,22 @@
+import os
+from datetime import datetime
+
 import pytest
 
+from config.config import BASE_URL
 from utilities.driver_factory import DriverFactory
-from utilities.screenshot import Screenshot
-from utilities.logger import Logger
-
-
-logger = Logger.get_logger()
+from utilities.screenshot import take_screenshot
+from utilities.logger import logger
 
 
 @pytest.fixture
-def driver(request):
+def driver():
 
     driver = DriverFactory.get_driver()
 
+    driver.get(BASE_URL)
+
     yield driver
-
-    if request.node.rep_call.failed:
-
-        path = Screenshot.capture(driver, request.node.name)
-
-        logger.error(f"Test Failed - Screenshot saved: {path}")
 
     driver.quit()
 
@@ -31,4 +28,23 @@ def pytest_runtest_makereport(item, call):
 
     report = outcome.get_result()
 
-    setattr(item, "rep_" + report.when, report)
+    if report.when == "call":
+
+        if report.failed:
+
+            driver = item.funcargs["driver"]
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            screenshot_name = f"{item.name}_{timestamp}.png"
+
+            screenshot_path = os.path.join(
+                "screenshots",
+                screenshot_name
+            )
+
+            take_screenshot(driver, screenshot_path)
+
+            logger.error(
+                f"Test Failed - Screenshot saved: {screenshot_path}"
+            )

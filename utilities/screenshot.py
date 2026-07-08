@@ -1,21 +1,14 @@
 import os
-from datetime import datetime
 
 
-class Screenshot:
+def take_screenshot(driver, file_path):
+    """
+    Saves a screenshot to the given file path.
+    """
 
-    @staticmethod
-    def capture(driver, test_name):
+    directory = os.path.dirname(file_path)
 
-        if not os.path.exists("screenshots"):
-            os.makedirs("screenshots")
+    if directory:
+        os.makedirs(directory, exist_ok=True)
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        filename = f"{test_name}_{timestamp}.png"
-
-        filepath = os.path.join("screenshots", filename)
-
-        driver.save_screenshot(filepath)
-
-        return filepath
+    driver.save_screenshot(file_path)

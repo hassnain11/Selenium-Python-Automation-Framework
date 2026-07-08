@@ -23,8 +23,9 @@ class LoginPage(BasePage):
         self.click(self.LOGIN_BUTTON)
 
     def login(self, username, password):
-        self.enter_username(username)
-        self.enter_password(password)
+
+        self.enter_username(username or "")
+        self.enter_password(password or "")
         self.click_login()
 
         return InventoryPage(self.driver)

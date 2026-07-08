@@ -30,3 +30,6 @@ class Logger:
             logger.addHandler(file_handler)
 
         return logger
+
+
+logger = Logger.get_logger()
