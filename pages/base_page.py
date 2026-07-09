@@ -1,33 +1,33 @@
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from utilities.logger import Logger
+from utilities.logger import logger
+from utilities.wait_helper import WaitHelper
 
 
 class BasePage:
 
     def __init__(self, driver):
         self.driver = driver
-        self.wait = WebDriverWait(driver, 10)
-        self.logger = Logger.get_logger()
+        self.wait = WaitHelper(driver)
 
     def click(self, locator):
-        self.logger.info(f"Clicking on element: {locator}")
-        self.wait.until(
-        EC.element_to_be_clickable(locator)
-        ).click()
+        logger.info(f"Clicking: {locator}")
+        element = self.wait.wait_for_element_clickable(locator)
+        element.click()
 
     def type(self, locator, text):
-        self.logger.info(f"Typing into element: {locator}")
-
-        element = self.wait.until(
-            EC.visibility_of_element_located(locator)
-        )
-
+        logger.info(f"Typing into: {locator}")
+        element = self.wait.wait_for_element_visible(locator)
         element.clear()
-        element.send_keys(text)
+
+        if text is not None:
+            element.send_keys(text)
 
     def get_text(self, locator):
-        self.logger.info(f"Reading text from: {locator}")
-        return self.wait.until(
-            EC.visibility_of_element_located(locator)
-        ).text
+        logger.info(f"Reading text: {locator}")
+        element = self.wait.wait_for_element_visible(locator)
+        return element.text
+
+    def is_displayed(self, locator):
+        try:
+            return self.wait.wait_for_element_visible(locator).is_displayed()
+        except:
+            return False

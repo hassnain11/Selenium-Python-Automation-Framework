@@ -1,26 +1,13 @@
-# Virtual Environment
 venv/
-.venv/
-
-# Python Cache
 __pycache__/
 *.pyc
 
-# Test Reports
-reports/
-
-# Logs
 logs/
-
-# Screenshots
+reports/
 screenshots/
 
-# VS Code
+.pytest_cache/
+.idea/
 .vscode/
 
-# Pytest Cache
-.pytest_cache/
-
-# OS Files
-.DS_Store
-Thumbs.db
+*.log
