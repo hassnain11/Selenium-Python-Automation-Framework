@@ -1,8 +1,8 @@
 from selenium import webdriver
 
 from selenium.webdriver.chrome.options import Options as ChromeOptions
-from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.edge.options import Options as EdgeOptions
 
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
@@ -12,13 +12,27 @@ from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-from config.config import IMPLICIT_WAIT
+from config.config import (
+    BROWSER,
+    HEADLESS,
+    IMPLICIT_WAIT
+)
+
+from utilities.logger import logger
 
 
 class DriverFactory:
 
     @staticmethod
-    def get_driver(browser="chrome", headless=False):
+    def get_driver(browser=None, headless=None):
+
+        browser = browser or BROWSER
+        headless = HEADLESS if headless is None else headless
+
+        logger.info("=" * 60)
+        logger.info("Starting WebDriver")
+        logger.info(f"Browser : {browser}")
+        logger.info(f"Headless: {headless}")
 
         browser = browser.lower()
 
@@ -29,23 +43,15 @@ class DriverFactory:
             if headless:
                 options.add_argument("--headless=new")
 
+            # Required for GitHub Actions / Linux CI
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--window-size=1920,1080")
+
             driver = webdriver.Chrome(
                 service=ChromeService(
                     ChromeDriverManager().install()
-                ),
-                options=options
-            )
-
-        elif browser == "edge":
-
-            options = EdgeOptions()
-
-            if headless:
-                options.add_argument("--headless=new")
-
-            driver = webdriver.Edge(
-                service=EdgeService(
-                    EdgeChromiumDriverManager().install()
                 ),
                 options=options
             )
@@ -64,11 +70,36 @@ class DriverFactory:
                 options=options
             )
 
-        else:
-            raise Exception(f"Unsupported browser: {browser}")
+        elif browser == "edge":
 
-        driver.maximize_window()
+            options = EdgeOptions()
+
+            if headless:
+                options.add_argument("--headless=new")
+
+            options.add_argument("--no-sandbox")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--disable-gpu")
+            options.add_argument("--window-size=1920,1080")
+
+            driver = webdriver.Edge(
+                service=EdgeService(
+                    EdgeChromiumDriverManager().install()
+                ),
+                options=options
+            )
+
+        else:
+
+            logger.error(f"Unsupported browser: {browser}")
+            raise ValueError(f"Unsupported browser: {browser}")
+
+        if not headless:
+            driver.maximize_window()
 
         driver.implicitly_wait(IMPLICIT_WAIT)
+
+        logger.info("WebDriver started successfully.")
+        logger.info("=" * 60)
 
         return driver

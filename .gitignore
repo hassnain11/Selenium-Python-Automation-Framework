@@ -1,13 +1,8 @@
 venv/
+.venv/
 __pycache__/
-*.pyc
-
+.pytest_cache/
+.vscode/
 logs/
 reports/
-screenshots/
-
-.pytest_cache/
-.idea/
-.vscode/
-
-*.log
+.env

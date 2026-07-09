@@ -1,7 +1,9 @@
-BASE_URL = "https://www.saucedemo.com/"
+import os
+from dotenv import load_dotenv
 
-BROWSER = "chrome"
+load_dotenv()
 
-IMPLICIT_WAIT = 10
-
-EXPLICIT_WAIT = 10
+BASE_URL = os.getenv("BASE_URL")
+BROWSER = os.getenv("BROWSER", "chrome")
+HEADLESS = os.getenv("HEADLESS", "False").lower() == "true"
+IMPLICIT_WAIT = int(os.getenv("IMPLICIT_WAIT", 10))
