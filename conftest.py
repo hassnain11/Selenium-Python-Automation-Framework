@@ -11,29 +11,10 @@ from utilities.logger import logger
 from utilities.screenshot import take_screenshot
 
 
-def pytest_addoption(parser):
-    parser.addoption(
-        "--browser",
-        action="store",
-        default="chrome",
-        help="Browser: chrome, edge, firefox"
-    )
-
-    parser.addoption(
-        "--headless",
-        action="store_true",
-        default=False,
-        help="Run browser in headless mode"
-    )
-
-
 @pytest.fixture
-def driver(request):
+def driver():
 
-    browser = request.config.getoption("--browser")
-    headless = request.config.getoption("--headless")
-
-    driver = DriverFactory.get_driver(browser, headless)
+    driver = DriverFactory.get_driver()
 
     driver.get(BASE_URL)
 
@@ -61,7 +42,7 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    if report.when == "call" and report.failed:
+    if report.when == "call" and report.failed":
 
         driver = item.funcargs.get("driver")
 
