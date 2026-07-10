@@ -1,11 +1,12 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
 
 class CheckoutPage(BasePage):
 
-    # Locators
     PAGE_TITLE = (By.CLASS_NAME, "title")
     FIRST_NAME = (By.ID, "first-name")
     LAST_NAME = (By.ID, "last-name")
@@ -29,6 +30,10 @@ class CheckoutPage(BasePage):
 
     def click_continue(self):
         self.click(self.CONTINUE_BUTTON)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.url_contains("checkout-step-two.html")
+        )
 
     def fill_checkout_information(self, first_name, last_name, postal_code):
         self.enter_first_name(first_name)

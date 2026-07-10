@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -21,12 +23,20 @@ class CartPage(BasePage):
         return self.get_text(self.PRODUCT_NAME)
 
     def click_checkout(self):
-        button = self.wait.wait_for_element_clickable(self.CHECKOUT_BUTTON)
-        self.driver.execute_script("arguments[0].click();", button)
+        self.click(self.CHECKOUT_BUTTON)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.url_contains("checkout-step-one.html")
+        )
 
     def remove_product(self):
-        button = self.wait.wait_for_element_clickable(self.REMOVE_BUTTON)
-        self.driver.execute_script("arguments[0].click();", button)
+        self.click(self.REMOVE_BUTTON)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.invisibility_of_element_located(
+                self.CART_BADGE
+            )
+        )
 
     def get_cart_count(self):
         badges = self.driver.find_elements(*self.CART_BADGE)
