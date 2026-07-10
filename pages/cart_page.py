@@ -19,19 +19,14 @@ class CartPage(BasePage):
 
     def is_cart_page_displayed(self):
 
+        title = self.get_text(self.PAGE_TITLE)
+
         print("=" * 60)
         print("CURRENT URL:", self.driver.current_url)
-
-        try:
-            title = self.get_text(self.PAGE_TITLE).strip()
-            print("PAGE TITLE:", repr(title))
-        except Exception as e:
-            print("ERROR READING TITLE:", e)
-            return False
-
+        print("PAGE TITLE:", repr(title))
         print("=" * 60)
 
-        return title == "Your Cart"
+        return title.strip() == "Your Cart"
 
     def get_product_name(self):
         return self.get_text(self.PRODUCT_NAME).strip()
