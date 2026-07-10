@@ -1,5 +1,4 @@
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
@@ -18,35 +17,26 @@ class CartPage(BasePage):
         super().__init__(driver)
 
     def is_cart_page_displayed(self):
-
-        title = self.get_text(self.PAGE_TITLE)
-
-        print("=" * 60)
-        print("CURRENT URL:", self.driver.current_url)
-        print("PAGE TITLE:", repr(title))
-        print("=" * 60)
-
-        return title.strip() == "Your Cart"
+        return self.get_text(self.PAGE_TITLE).strip() == "Your Cart"
 
     def get_product_name(self):
-        return self.get_text(self.PRODUCT_NAME).strip()
+        return self.get_text(self.PRODUCT_NAME)
 
     def click_checkout(self):
         self.click(self.CHECKOUT_BUTTON)
 
-    
     def remove_product(self):
         self.click(self.REMOVE_BUTTON)
 
+        # Wait until the cart badge disappears.
         WebDriverWait(self.driver, 10).until(
-            EC.invisibility_of_element_located(self.CART_BADGE)
-    )
+            lambda d: len(d.find_elements(*self.CART_BADGE)) == 0
+        )
 
     def get_cart_count(self):
-        try:
-            badge = self.driver.find_element(*self.CART_BADGE)
-            print("BADGE:", repr(badge.text))
-            return badge.text.strip()
-        except NoSuchElementException:
-            print("BADGE NOT FOUND")
+        badges = self.driver.find_elements(*self.CART_BADGE)
+
+        if not badges:
             return "0"
+
+        return badges[0].text.strip()
