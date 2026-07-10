@@ -1,5 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -37,8 +39,13 @@ class CartPage(BasePage):
     def click_checkout(self):
         self.click(self.CHECKOUT_BUTTON)
 
+    
     def remove_product(self):
         self.click(self.REMOVE_BUTTON)
+
+        WebDriverWait(self.driver, 10).until(
+            EC.invisibility_of_element_located(self.CART_BADGE)
+    )
 
     def get_cart_count(self):
         try:
