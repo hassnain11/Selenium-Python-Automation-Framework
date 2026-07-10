@@ -33,16 +33,14 @@ def test_remove_product_from_cart(logged_in_driver):
     inventory.add_backpack_to_cart()
     inventory.open_cart()
 
-    WebDriverWait(logged_in_driver, 10).until(
-        EC.url_contains("cart.html")
-    )
+    cart.click_checkout()
+
+    checkout = CheckoutPage(logged_in_driver)
+
+    assert checkout.is_checkout_page_displayed()
 
     cart = CartPage(logged_in_driver)
 
     cart.remove_product()
-
-    WebDriverWait(logged_in_driver, 10).until(
-        lambda d: cart.get_cart_count() == "0"
-    )
 
     assert cart.get_cart_count() == "0"

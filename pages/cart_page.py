@@ -21,13 +21,17 @@ class CartPage(BasePage):
         return self.get_text(self.PRODUCT_NAME)
 
     def click_checkout(self):
-        self.click(self.CHECKOUT_BUTTON)
+        button = self.wait.wait_for_element_clickable(self.CHECKOUT_BUTTON)
+        self.driver.execute_script("arguments[0].click();", button)
 
     def remove_product(self):
-        self.click(self.REMOVE_BUTTON)
+        button = self.wait.wait_for_element_clickable(self.REMOVE_BUTTON)
+        self.driver.execute_script("arguments[0].click();", button)
 
     def get_cart_count(self):
-        try:
-            return self.get_text(self.CART_BADGE).strip()
-        except Exception:
+        badges = self.driver.find_elements(*self.CART_BADGE)
+
+        if not badges:
             return "0"
+
+        return badges[0].text.strip()
