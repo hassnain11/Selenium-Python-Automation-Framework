@@ -4,11 +4,9 @@ from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.edge.options import Options as EdgeOptions
 
-from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.service import Service as FirefoxService
 from selenium.webdriver.edge.service import Service as EdgeService
 
-from webdriver_manager.chrome import ChromeDriverManager
 from webdriver_manager.firefox import GeckoDriverManager
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
@@ -48,13 +46,9 @@ class DriverFactory:
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--disable-gpu")
             options.add_argument("--window-size=1920,1080")
+            options.add_argument("--remote-debugging-port=9222")
 
-            driver = webdriver.Chrome(
-                service=ChromeService(
-                    ChromeDriverManager().install()
-                ),
-                options=options
-            )
+            driver = webdriver.Chrome(options=options)
 
         elif browser == "firefox":
 
