@@ -1,18 +1,6 @@
-from pages.login_page import LoginPage
-
-from config.credentials import (
-    STANDARD_USERNAME,
-    STANDARD_PASSWORD
-)
+import pytest
 
 
+@pytest.mark.skip(reason="Intentional demo failure test")
 def test_failure_demo(driver):
-
-    login = LoginPage(driver)
-
-    login.login(
-        STANDARD_USERNAME,
-        STANDARD_PASSWORD
-    )
-
-    assert False
+    pass

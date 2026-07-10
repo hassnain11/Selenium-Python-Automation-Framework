@@ -1,11 +1,11 @@
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 
 from pages.base_page import BasePage
 
 
 class CartPage(BasePage):
 
-    # Locators
     PAGE_TITLE = (By.CLASS_NAME, "title")
     PRODUCT_NAME = (By.CLASS_NAME, "inventory_item_name")
     CHECKOUT_BUTTON = (By.ID, "checkout")
@@ -16,10 +16,23 @@ class CartPage(BasePage):
         super().__init__(driver)
 
     def is_cart_page_displayed(self):
-        return self.get_text(self.PAGE_TITLE) == "Your Cart"
+
+        print("=" * 60)
+        print("CURRENT URL:", self.driver.current_url)
+
+        try:
+            title = self.get_text(self.PAGE_TITLE).strip()
+            print("PAGE TITLE:", repr(title))
+        except Exception as e:
+            print("ERROR READING TITLE:", e)
+            return False
+
+        print("=" * 60)
+
+        return title == "Your Cart"
 
     def get_product_name(self):
-        return self.get_text(self.PRODUCT_NAME)
+        return self.get_text(self.PRODUCT_NAME).strip()
 
     def click_checkout(self):
         self.click(self.CHECKOUT_BUTTON)
@@ -29,6 +42,9 @@ class CartPage(BasePage):
 
     def get_cart_count(self):
         try:
-            return self.get_text(self.CART_BADGE)
-        except Exception:
+            badge = self.driver.find_element(*self.CART_BADGE)
+            print("BADGE:", repr(badge.text))
+            return badge.text.strip()
+        except NoSuchElementException:
+            print("BADGE NOT FOUND")
             return "0"
