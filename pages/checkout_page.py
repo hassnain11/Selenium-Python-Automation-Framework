@@ -16,7 +16,7 @@ class CheckoutPage(BasePage):
         super().__init__(driver)
 
     def is_checkout_page_displayed(self):
-        return self.get_text(self.PAGE_TITLE) == "Checkout: Your Information"
+        return self.get_text(self.PAGE_TITLE).strip() == "Checkout: Your Information"
 
     def enter_first_name(self, first_name):
         self.type(self.FIRST_NAME, first_name)

@@ -1,6 +1,4 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -22,24 +20,14 @@ class InventoryPage(BasePage):
     def add_backpack_to_cart(self):
         self.click(self.ADD_BACKPACK)
 
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                self.CART_BADGE,
-                "1"
-            )
-        )
-
     def remove_backpack_from_cart(self):
         self.click(self.REMOVE_BACKPACK)
-
-        WebDriverWait(self.driver, 10).until(
-            EC.invisibility_of_element_located(
-                self.CART_BADGE
-            )
-        )
 
     def open_cart(self):
         self.click(self.SHOPPING_CART)
 
     def get_cart_count(self):
-        return self.get_text(self.CART_BADGE).strip()
+        try:
+            return self.get_text(self.CART_BADGE).strip()
+        except Exception:
+            return "0"

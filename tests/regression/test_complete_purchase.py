@@ -1,4 +1,6 @@
 import pytest
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
@@ -15,11 +17,19 @@ def test_complete_purchase(logged_in_driver):
     inventory.add_backpack_to_cart()
     inventory.open_cart()
 
+    WebDriverWait(logged_in_driver, 10).until(
+        EC.url_contains("cart.html")
+    )
+
     cart = CartPage(logged_in_driver)
 
     assert cart.is_cart_page_displayed()
 
     cart.click_checkout()
+
+    WebDriverWait(logged_in_driver, 10).until(
+        EC.url_contains("checkout-step-one.html")
+    )
 
     checkout = CheckoutPage(logged_in_driver)
 
@@ -31,11 +41,19 @@ def test_complete_purchase(logged_in_driver):
         "75000"
     )
 
+    WebDriverWait(logged_in_driver, 10).until(
+        EC.url_contains("checkout-step-two.html")
+    )
+
     overview = CheckoutOverviewPage(logged_in_driver)
 
     assert overview.is_overview_page_displayed()
 
     overview.click_finish()
+
+    WebDriverWait(logged_in_driver, 10).until(
+        EC.url_contains("checkout-complete.html")
+    )
 
     complete = CheckoutCompletePage(logged_in_driver)
 

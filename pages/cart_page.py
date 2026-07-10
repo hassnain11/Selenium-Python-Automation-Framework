@@ -1,6 +1,4 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -28,15 +26,8 @@ class CartPage(BasePage):
     def remove_product(self):
         self.click(self.REMOVE_BUTTON)
 
-        # Wait until the cart badge disappears.
-        WebDriverWait(self.driver, 10).until(
-            lambda d: len(d.find_elements(*self.CART_BADGE)) == 0
-        )
-
     def get_cart_count(self):
-        badges = self.driver.find_elements(*self.CART_BADGE)
-
-        if not badges:
+        try:
+            return self.get_text(self.CART_BADGE).strip()
+        except Exception:
             return "0"
-
-        return badges[0].text.strip()
