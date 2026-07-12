@@ -23,22 +23,31 @@ class CartPage(BasePage):
         return self.get_text(self.PRODUCT_NAME)
 
     def click_checkout(self):
-        self.click(self.CHECKOUT_BUTTON)
+
+        checkout_btn = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.CHECKOUT_BUTTON)
+        )
+
+        checkout_btn.click()
 
         WebDriverWait(self.driver, 10).until(
-            EC.url_contains("checkout-step-one.html")
+            EC.visibility_of_element_located((By.ID, "first-name"))
         )
 
     def remove_product(self):
-        self.click(self.REMOVE_BUTTON)
+
+        remove_btn = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.REMOVE_BUTTON)
+        )
+
+        remove_btn.click()
 
         WebDriverWait(self.driver, 10).until(
-            EC.invisibility_of_element_located(
-                self.CART_BADGE
-            )
+            lambda d: self.get_cart_count() == "0"
         )
 
     def get_cart_count(self):
+
         badges = self.driver.find_elements(*self.CART_BADGE)
 
         if not badges:
