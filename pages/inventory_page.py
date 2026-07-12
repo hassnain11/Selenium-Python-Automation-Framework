@@ -41,10 +41,6 @@ class InventoryPage(BasePage):
     def open_cart(self):
         self.click(self.SHOPPING_CART)
 
-        WebDriverWait(self.driver, 10).until(
-            EC.url_contains("cart.html")
-        )
-
     def get_cart_count(self):
         try:
             return self.get_text(self.CART_BADGE).strip()

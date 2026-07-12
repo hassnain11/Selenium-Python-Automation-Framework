@@ -17,40 +17,36 @@ class CartPage(BasePage):
         super().__init__(driver)
 
     def is_cart_page_displayed(self):
-        return self.get_text(self.PAGE_TITLE).strip() == "Your Cart"
+        return self.get_text(self.PAGE_TITLE) == "Your Cart"
 
     def get_product_name(self):
         return self.get_text(self.PRODUCT_NAME)
 
     def click_checkout(self):
 
-        checkout_btn = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.CHECKOUT_BUTTON)
-        )
-
-        checkout_btn.click()
+        self.click(self.CHECKOUT_BUTTON)
 
         WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located((By.ID, "first-name"))
+            EC.visibility_of_element_located(
+                (By.ID, "first-name")
+            )
         )
 
     def remove_product(self):
 
-        remove_btn = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.REMOVE_BUTTON)
-        )
-
-        remove_btn.click()
+        self.click(self.REMOVE_BUTTON)
 
         WebDriverWait(self.driver, 10).until(
-            lambda d: self.get_cart_count() == "0"
+            lambda d: len(
+                d.find_elements(*self.CART_BADGE)
+            ) == 0
         )
 
     def get_cart_count(self):
 
         badges = self.driver.find_elements(*self.CART_BADGE)
 
-        if not badges:
-            return "0"
+        if badges:
+            return badges[0].text.strip()
 
-        return badges[0].text.strip()
+        return "0"
