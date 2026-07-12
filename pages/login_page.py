@@ -1,6 +1,8 @@
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from pages.inventory_page import InventoryPage
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 class LoginPage(BasePage):
 
@@ -24,9 +26,13 @@ class LoginPage(BasePage):
 
     def login(self, username, password):
 
-        self.enter_username(username or "")
-        self.enter_password(password or "")
+        self.enter_username(username)
+        self.enter_password(password)
         self.click_login()
+
+        WebDriverWait(self.driver, 10).until(
+            EC.url_contains("inventory.html")
+        )
 
         return InventoryPage(self.driver)
 

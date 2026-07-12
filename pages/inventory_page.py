@@ -39,31 +39,7 @@ class InventoryPage(BasePage):
         )
 
     def open_cart(self):
-
-        cart = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(self.SHOPPING_CART)
-        )
-
-        print("Cart href:", cart.get_attribute("href"))
-        print("Cart displayed:", cart.is_displayed())
-        print("Cart enabled:", cart.is_enabled())
-
-        cart.click()
-
-        print("URL after normal click:")
-        print(self.driver.current_url)
-
-        if "cart.html" not in self.driver.current_url:
-
-            print("Trying JavaScript click...")
-
-        self.driver.execute_script(
-            "arguments[0].click();",
-            cart
-        )
-
-        print("URL after JS click:")
-        print(self.driver.current_url)
+        self.click(self.SHOPPING_CART)
 
         WebDriverWait(self.driver, 10).until(
             EC.url_contains("cart.html")
