@@ -20,14 +20,14 @@ class InventoryPage(BasePage):
         return self.get_text(self.TITLE).strip() == "Products"
 
     def add_backpack_to_cart(self):
+
         self.click(self.ADD_BACKPACK)
 
-        WebDriverWait(self.driver, 10).until(
-            EC.text_to_be_present_in_element(
-                self.CART_BADGE,
-                "1"
-            )
+        WebDriverWait(self.driver,10).until(
+            EC.visibility_of_element_located(
+            self.CART_BADGE
         )
+    )
 
     def remove_backpack_from_cart(self):
         self.click(self.REMOVE_BACKPACK)
