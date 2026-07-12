@@ -8,13 +8,23 @@ from config.credentials import STANDARD_USERNAME, STANDARD_PASSWORD
 from pages.login_page import LoginPage
 from utilities.driver_factory import DriverFactory
 from utilities.logger import logger
-from utilities.screenshot import take_screenshot
+
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--browser",
+        action="store",
+        default=None,
+        help="Browser: chrome | edge | firefox"
+    )
 
 
 @pytest.fixture
-def driver():
+def driver(request):
 
-    driver = DriverFactory.get_driver()
+    browser = request.config.getoption("--browser")
+
+    driver = DriverFactory.get_driver(browser=browser)
 
     driver.get(BASE_URL)
 
@@ -48,15 +58,17 @@ def pytest_runtest_makereport(item, call):
 
         if driver:
 
+            os.makedirs("screenshots", exist_ok=True)
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-            screenshot_path = os.path.join(
+            file_path = os.path.join(
                 "screenshots",
                 f"{item.name}_{timestamp}.png"
             )
 
-            take_screenshot(driver, screenshot_path)
+            driver.save_screenshot(file_path)
 
             logger.error(
-                f"Test Failed - Screenshot saved: {screenshot_path}"
+                f"Screenshot saved: {file_path}"
             )
