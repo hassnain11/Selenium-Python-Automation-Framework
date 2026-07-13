@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -24,45 +23,40 @@ class InventoryPage(BasePage):
 
         self.click(self.ADD_BACKPACK)
 
-        WebDriverWait(self.driver,10).until(
-            EC.visibility_of_element_located(
-            self.CART_BADGE
-        )
-    )
-
-    def add_backpack_to_cart(self):
-        self.click(self.ADD_BACKPACK)
-
         WebDriverWait(self.driver, 10).until(
             EC.visibility_of_element_located(self.REMOVE_BACKPACK)
         )
 
+    def remove_backpack_from_cart(self):
 
+        self.click(self.REMOVE_BACKPACK)
 
-def open_cart(self):
+        WebDriverWait(self.driver, 10).until(
+            EC.invisibility_of_element_located(self.CART_BADGE)
+        )
 
-    cart = WebDriverWait(self.driver, 10).until(
-        EC.element_to_be_clickable(self.SHOPPING_CART)
-    )
+    def open_cart(self):
 
-    # Scroll the cart into view
-    self.driver.execute_script(
-        "arguments[0].scrollIntoView({block:'center'});",
-        cart
-    )
+        cart = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.SHOPPING_CART)
+        )
 
-    # Use JavaScript click (more reliable in headless mode)
-    self.driver.execute_script(
-        "arguments[0].click();",
-        cart
-    )
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            cart
+        )
 
-    WebDriverWait(self.driver, 10).until(
-        EC.url_contains("cart.html")
-    )
+        self.driver.execute_script(
+            "arguments[0].click();",
+            cart
+        )
 
-    print("URL after cart click:")
-    print(self.driver.current_url)
+        WebDriverWait(self.driver, 10).until(
+            EC.url_contains("cart.html")
+        )
+
+        print("URL after cart click:")
+        print(self.driver.current_url)
 
     def get_cart_count(self):
         try:
