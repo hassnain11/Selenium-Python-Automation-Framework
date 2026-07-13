@@ -3,6 +3,7 @@ from email.mime import text
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+import time
 
 from selenium.common.exceptions import (
     WebDriverException,
@@ -57,13 +58,24 @@ class BasePage:
             element
         )
 
-        element.click()
+        # Wait a moment for the element to be stable
+        time.sleep(0.5)
 
-        # Clear the field using JavaScript for better reliability
-        self.driver.execute_script("arguments[0].value = '';", element)
+        element.click()
+        time.sleep(0.3)
+
+        # Clear the field using JavaScript and trigger input event
+        self.driver.execute_script("""
+            arguments[0].value = '';
+            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+        """, element)
+        
+        time.sleep(0.3)
         
         # Send the text
         element.send_keys(text)
+        time.sleep(0.3)
 
         actual = element.get_attribute("value")
 
@@ -71,12 +83,17 @@ class BasePage:
         print(f"Actual  : {actual}")
 
         if actual != text:
-            print("Retrying...")
-            element.clear()
-            element.send_keys(text)
+            print("Retrying with alternative method...")
+            # Use JavaScript to set the value directly
+            self.driver.execute_script("""
+                arguments[0].value = arguments[1];
+                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
+                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+            """, element, text)
+            time.sleep(0.3)
             actual = element.get_attribute("value")
 
-        assert actual == text
+        assert actual == text, f"Expected '{text}' but got '{actual}'"
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
