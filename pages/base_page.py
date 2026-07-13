@@ -39,10 +39,25 @@ class BasePage:
 
         element = self.wait.wait_for_element_visible(locator)
 
+    # Scroll the element into view
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            element
+        )
+
+    # Click to focus
+        element.click()
+
+    # Clear robustly
         element.clear()
 
-        if text:
-            element.send_keys(text)
+    # Send text
+        element.send_keys(text)
+
+    # Verify the text was actually entered
+        assert element.get_attribute("value") == text, (
+        f"Failed to type '{text}' into {locator}"
+    )
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
