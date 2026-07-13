@@ -79,7 +79,7 @@ class BasePage:
         # Type character by character with longer delays
         for char in text:
             element.send_keys(char)
-            time.sleep(0.1)  # Increased delay
+            time.sleep(0.1)
 
         time.sleep(0.5)
 
@@ -89,9 +89,9 @@ class BasePage:
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
 
-        # If still empty, try JavaScript as final fallback
+        # If keyboard input didn't work, use JavaScript
         if not actual:
-            print("Value empty after typing. Trying JavaScript assignment...")
+            print("Value empty after typing. Using JavaScript assignment...")
             self.driver.execute_script("""
                 const input = arguments[0];
                 const value = arguments[1];
@@ -99,15 +99,31 @@ class BasePage:
                 // Set the value
                 input.value = value;
                 
-                // Trigger all necessary events
+                // Trigger React's onChange by dispatching events in the right order
+                // Start with focus event
+                input.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+                
+                // Then keydown for each character
+                for (let i = 0; i < value.length; i++) {
+                    input.dispatchEvent(new KeyboardEvent('keydown', { 
+                        key: value[i], 
+                        code: 'Key' + value[i].toUpperCase(),
+                        bubbles: true 
+                    }));
+                }
+                
+                // Input and change events
                 input.dispatchEvent(new Event('input', { bubbles: true }));
                 input.dispatchEvent(new Event('change', { bubbles: true }));
-                input.dispatchEvent(new Event('blur', { bubbles: true }));
+                
+                // Finally blur
+                input.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
             """, element, text)
+            
             time.sleep(0.5)
             actual = element.get_attribute("value")
             actual = actual if actual else ""
-            print(f"After JS fallback - Expected: {text}, Actual: {actual}")
+            print(f"After JS assignment - Expected: {text}, Actual: {actual}")
 
         assert actual == text, f"Expected '{text}' but got '{actual}'"
 
