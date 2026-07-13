@@ -61,6 +61,7 @@ class BasePage:
         # Wait a moment for the element to be stable
         time.sleep(0.5)
 
+        # Make sure element is focused and ready
         element.click()
         time.sleep(0.3)
 
@@ -78,6 +79,7 @@ class BasePage:
         time.sleep(0.3)
 
         actual = element.get_attribute("value")
+        actual = actual if actual else ""
 
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
@@ -86,14 +88,19 @@ class BasePage:
             print("Retrying with alternative method...")
             # Use JavaScript to set the value directly
             self.driver.execute_script("""
+                arguments[0].focus();
                 arguments[0].value = arguments[1];
                 arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
                 arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
+                arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));
             """, element, text)
-            time.sleep(0.3)
+            time.sleep(0.5)
             actual = element.get_attribute("value")
+            actual = actual if actual else ""
+            print(f"After retry - Expected: {text}, Actual: {actual}")
 
-        assert actual == text, f"Expected '{text}' but got '{actual}'"
+        if actual != text:
+            raise AssertionError(f"Failed to type '{text}'. Actual value: '{actual}'")
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
