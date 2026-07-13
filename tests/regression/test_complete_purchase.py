@@ -1,7 +1,10 @@
+from xml.parsers.expat import errors
+
 import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+from selenium.webdriver.common.by import By
+from conftest import logged_in_driver
 from pages.inventory_page import InventoryPage
 from pages.cart_page import CartPage
 from pages.checkout_page import CheckoutPage
@@ -35,11 +38,23 @@ def test_complete_purchase(logged_in_driver):
 
     assert checkout.is_checkout_page_displayed()
 
+    print("Before typing:")
+    print("URL:", logged_in_driver.current_url)
+
     checkout.fill_checkout_information(
         "Muhammad",
         "Hassnain",
         "75000"
     )
+
+    print("After clicking Continue:")
+    print("URL:", logged_in_driver.current_url)
+
+    errors = logged_in_driver.find_elements(By.CSS_SELECTOR, "h3[data-test='error']")
+    if errors:
+        print("Validation Error:", errors[0].text)
+    else:
+        print("No validation error")
 
     WebDriverWait(logged_in_driver, 10).until(
         EC.url_contains("checkout-step-two.html")

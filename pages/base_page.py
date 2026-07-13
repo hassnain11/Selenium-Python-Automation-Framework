@@ -6,6 +6,7 @@ from selenium.common.exceptions import (
     StaleElementReferenceException
 )
 from selenium.webdriver import Keys
+from selenium.webdriver.support import expected_conditions as EC
 
 from utilities.logger import logger
 from utilities.wait_helper import WaitHelper
@@ -43,36 +44,18 @@ class BasePage:
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
 
-        element = self.wait.wait_for_element_visible(locator)
-
-    # Wait until enabled
-        WebDriverWait(self.driver, 10).until(
-        lambda d: element.is_enabled()
+        element = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(locator)
         )
 
-    # Scroll into view
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             element
         )
 
-    # Click to focus
         element.click()
-
-    # Clear the field
-        element.send_keys(Keys.CONTROL, "a")
-        element.send_keys(Keys.DELETE)
-
-    # Type the value
+        element.clear()
         element.send_keys(text)
-
-    # Fallback for GitHub Actions
-        if element.get_attribute("value") != text:
-            self.driver.execute_script(
-                "arguments[0].value = arguments[1];",
-                element,
-                text
-        )
 
         assert element.get_attribute("value") == text, \
             f"Failed to type '{text}' into {locator}"
