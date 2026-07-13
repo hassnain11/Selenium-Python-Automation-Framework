@@ -29,8 +29,9 @@ class CheckoutPage(BasePage):
         self.type(self.POSTAL_CODE, postal_code)
 
     def click_continue(self):
+        # Wait for button to be clickable with fresh element reference each time
         button = WebDriverWait(self.driver, 10).until(
-            EC.presence_of_element_located(self.CONTINUE_BUTTON)
+            EC.element_to_be_clickable(self.CONTINUE_BUTTON)
         )
 
         self.driver.execute_script(
@@ -38,10 +39,7 @@ class CheckoutPage(BasePage):
             button
         )
 
-        WebDriverWait(self.driver, 2).until(
-            lambda d: button.is_enabled()
-        )
-
+        # Use JavaScript click for reliability
         self.driver.execute_script(
             "arguments[0].click();",
             button
