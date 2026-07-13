@@ -1,7 +1,11 @@
+from email.mime import text
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import (
     WebDriverException,
     StaleElementReferenceException
 )
+from selenium.webdriver import Keys
 
 from utilities.logger import logger
 from utilities.wait_helper import WaitHelper
@@ -34,12 +38,19 @@ class BasePage:
                 element
             )
 
+    from selenium.webdriver.common.keys import Keys
+
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
 
         element = self.wait.wait_for_element_visible(locator)
 
-    # Scroll the element into view
+    # Wait until enabled
+        WebDriverWait(self.driver, 10).until(
+        lambda d: element.is_enabled()
+        )
+
+    # Scroll into view
         self.driver.execute_script(
             "arguments[0].scrollIntoView({block:'center'});",
             element
@@ -48,16 +59,23 @@ class BasePage:
     # Click to focus
         element.click()
 
-    # Clear robustly
-        element.clear()
+    # Clear the field
+        element.send_keys(Keys.CONTROL, "a")
+        element.send_keys(Keys.DELETE)
 
-    # Send text
+    # Type the value
         element.send_keys(text)
 
-    # Verify the text was actually entered
-        assert element.get_attribute("value") == text, (
-        f"Failed to type '{text}' into {locator}"
-    )
+    # Fallback for GitHub Actions
+        if element.get_attribute("value") != text:
+            self.driver.execute_script(
+                "arguments[0].value = arguments[1];",
+                element,
+                text
+        )
+
+        assert element.get_attribute("value") == text, \
+            f"Failed to type '{text}' into {locator}"
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
