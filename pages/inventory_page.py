@@ -29,13 +29,11 @@ class InventoryPage(BasePage):
         )
     )
 
-    def remove_backpack_from_cart(self):
-        self.click(self.REMOVE_BACKPACK)
+    def add_backpack_to_cart(self):
+        self.click(self.ADD_BACKPACK)
 
         WebDriverWait(self.driver, 10).until(
-            EC.invisibility_of_element_located(
-                self.CART_BADGE
-            )
+            EC.visibility_of_element_located(self.REMOVE_BACKPACK)
         )
 
     def open_cart(self):

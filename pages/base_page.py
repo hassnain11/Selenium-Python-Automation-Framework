@@ -3,8 +3,6 @@ from selenium.common.exceptions import (
     StaleElementReferenceException
 )
 
-from selenium.webdriver.support.ui import WebDriverWait
-
 from utilities.logger import logger
 from utilities.wait_helper import WaitHelper
 
@@ -16,63 +14,45 @@ class BasePage:
         self.wait = WaitHelper(driver)
 
     def click(self, locator):
-
         logger.info(f"Clicking: {locator}")
 
-        for _ in range(3):
+        element = self.wait.wait_for_element_clickable(locator)
 
-            try:
+        try:
+            element.click()
 
-                element = self.wait.wait_for_element_clickable(locator)
+        except (WebDriverException, StaleElementReferenceException):
 
-                self.driver.execute_script(
-                    "arguments[0].scrollIntoView({block:'center'});",
-                    element
-                )
+            logger.warning(
+                f"Normal click failed. Using JavaScript click for {locator}"
+            )
 
-                WebDriverWait(self.driver, 5).until(
-                    lambda d: element.is_displayed()
-                )
+            element = self.wait.wait_for_element_clickable(locator)
 
-                try:
-                    element.click()
-
-                except WebDriverException:
-
-                    logger.warning("Normal click failed. Using JS click.")
-
-                    self.driver.execute_script(
-                        "arguments[0].click();",
-                        element
-                    )
-
-                return
-
-            except StaleElementReferenceException:
-
-                logger.warning("Retrying after stale element...")
-
-        raise Exception(f"Unable to click {locator}")
+            self.driver.execute_script(
+                "arguments[0].click();",
+                element
+            )
 
     def type(self, locator, text):
-
         logger.info(f"Typing into: {locator}")
 
         element = self.wait.wait_for_element_visible(locator)
 
         element.clear()
 
-        element.send_keys(text)
+        if text:
+            element.send_keys(text)
 
     def get_text(self, locator):
-
         logger.info(f"Reading text: {locator}")
 
-        return self.wait.wait_for_element_visible(locator).text.strip()
+        element = self.wait.wait_for_element_visible(locator)
+
+        return element.text.strip()
 
     def is_displayed(self, locator):
-
         try:
             return self.wait.wait_for_element_visible(locator).is_displayed()
-        except:
+        except Exception:
             return False
