@@ -24,13 +24,28 @@ class CartPage(BasePage):
 
     def click_checkout(self):
 
-        self.click(self.CHECKOUT_BUTTON)
+        checkout = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.CHECKOUT_BUTTON)
+        )
+
+    # Scroll into view
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            checkout
+        )
+
+    # JS click (more reliable in headless)
+        self.driver.execute_script(
+            "arguments[0].click();",
+            checkout
+        )
 
         WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(
-                (By.ID, "first-name")
-            )
+            EC.url_contains("checkout-step-one.html")
         )
+
+        print("URL after checkout:")
+        print(self.driver.current_url)
 
     def remove_product(self):
 
