@@ -89,41 +89,51 @@ class BasePage:
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
 
-        # If keyboard input didn't work, use JavaScript
+        # If keyboard input didn't work, use advanced React state manipulation
         if not actual:
-            print("Value empty after typing. Using JavaScript assignment...")
+            print("Value empty after typing. Using React state manipulation...")
             self.driver.execute_script("""
                 const input = arguments[0];
                 const value = arguments[1];
                 
-                // Set the value
+                // Set the DOM value
                 input.value = value;
                 
-                // Trigger React's onChange by dispatching events in the right order
-                // Start with focus event
-                input.dispatchEvent(new FocusEvent('focus', { bubbles: true }));
+                // Get React fiber from the element
+                const keys = Object.keys(input);
+                const reactKey = keys.find(key => key.startsWith('__reactProps'));
                 
-                // Then keydown for each character
-                for (let i = 0; i < value.length; i++) {
-                    input.dispatchEvent(new KeyboardEvent('keydown', { 
-                        key: value[i], 
-                        code: 'Key' + value[i].toUpperCase(),
-                        bubbles: true 
-                    }));
+                if (reactKey) {
+                    // React element found - access props and call onChange
+                    const reactProps = input[reactKey];
+                    if (reactProps && reactProps.onChange) {
+                        // Create a synthetic event
+                        const event = {
+                            target: {
+                                value: value,
+                                name: input.name,
+                                id: input.id
+                            },
+                            currentTarget: input,
+                            preventDefault: function() {},
+                            stopPropagation: function() {}
+                        };
+                        // Call React's onChange handler
+                        reactProps.onChange(event);
+                    }
+                } else {
+                    // Fallback: dispatch standard events
+                    input.dispatchEvent(new Event('focus', { bubbles: true }));
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    input.dispatchEvent(new Event('blur', { bubbles: true }));
                 }
-                
-                // Input and change events
-                input.dispatchEvent(new Event('input', { bubbles: true }));
-                input.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // Finally blur
-                input.dispatchEvent(new FocusEvent('blur', { bubbles: true }));
             """, element, text)
             
             time.sleep(0.5)
             actual = element.get_attribute("value")
             actual = actual if actual else ""
-            print(f"After JS assignment - Expected: {text}, Actual: {actual}")
+            print(f"After React state manipulation - Expected: {text}, Actual: {actual}")
 
         assert actual == text, f"Expected '{text}' but got '{actual}'"
 
