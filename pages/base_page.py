@@ -1,12 +1,11 @@
-from email.mime import text
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+
 from selenium.common.exceptions import (
     WebDriverException,
-    StaleElementReferenceException
+    StaleElementReferenceException,
 )
-from selenium.webdriver import Keys
-from selenium.webdriver.support import expected_conditions as EC
 
 from utilities.logger import logger
 from utilities.wait_helper import WaitHelper
@@ -39,13 +38,11 @@ class BasePage:
                 element
             )
 
-    from selenium.webdriver.common.keys import Keys
-
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
 
         element = WebDriverWait(self.driver, 10).until(
-            EC.element_to_be_clickable(locator)
+            EC.visibility_of_element_located(locator)
         )
 
         self.driver.execute_script(
@@ -53,12 +50,22 @@ class BasePage:
             element
         )
 
-        element.click()
-        element.clear()
+        self.driver.execute_script(
+            "arguments[0].focus();",
+            element
+        )
+
+        # Clear reliably
+        element.send_keys(Keys.CONTROL, "a")
+        element.send_keys(Keys.DELETE)
+
+        # Type
         element.send_keys(text)
 
-        assert element.get_attribute("value") == text, \
-            f"Failed to type '{text}' into {locator}"
+        # Wait until the value appears
+        WebDriverWait(self.driver, 5).until(
+            lambda d: element.get_attribute("value") == text
+        )
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
