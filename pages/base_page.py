@@ -60,82 +60,62 @@ class BasePage:
 
         time.sleep(0.5)
 
-        # Triple-click to select all existing content
+        # Click to focus the element
         element.click()
-        time.sleep(0.1)
-        element.click()
-        time.sleep(0.1)
-        element.click()
-        time.sleep(0.3)
+        time.sleep(0.2)
 
-        # Clear using keyboard
+        # Clear field completely
         element.send_keys(Keys.CONTROL + "a")
         time.sleep(0.1)
-        element.send_keys(Keys.BACKSPACE)
-        time.sleep(0.3)
+        element.send_keys(Keys.DELETE)
+        time.sleep(0.2)
 
+        # Type text one character at a time
         print(f"Typing text: {text}")
-        
-        # Type character by character with longer delays
         for char in text:
             element.send_keys(char)
-            time.sleep(0.1)
+            time.sleep(0.05)
 
-        time.sleep(0.5)
+        time.sleep(0.3)
 
+        # Verify the text was entered
         actual = element.get_attribute("value")
         actual = actual if actual else ""
 
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
 
-        # If keyboard input didn't work, use advanced React state manipulation
-        if not actual:
-            print("Value empty after typing. Using React state manipulation...")
+        # If keyboard didn't work, use JavaScript with React event handling
+        if actual != text:
+            print("Using JavaScript to set value...")
             self.driver.execute_script("""
                 const input = arguments[0];
                 const value = arguments[1];
                 
-                // Set the DOM value
+                // Clear and set value
+                input.value = '';
                 input.value = value;
                 
-                // Get React fiber from the element
+                // Try to find React onChange handler
                 const keys = Object.keys(input);
-                const reactKey = keys.find(key => key.startsWith('__reactProps'));
+                const reactKey = keys.find(k => k.startsWith('__reactProps'));
                 
-                if (reactKey) {
-                    // React element found - access props and call onChange
-                    const reactProps = input[reactKey];
-                    if (reactProps && reactProps.onChange) {
-                        // Create a synthetic event
-                        const event = {
-                            target: {
-                                value: value,
-                                name: input.name,
-                                id: input.id
-                            },
-                            currentTarget: input,
-                            preventDefault: function() {},
-                            stopPropagation: function() {}
-                        };
-                        // Call React's onChange handler
-                        reactProps.onChange(event);
-                    }
+                if (reactKey && input[reactKey].onChange) {
+                    // Call React's onChange directly
+                    input[reactKey].onChange({ target: { value: value } });
                 } else {
-                    // Fallback: dispatch standard events
-                    input.dispatchEvent(new Event('focus', { bubbles: true }));
+                    // Fallback: dispatch events
                     input.dispatchEvent(new Event('input', { bubbles: true }));
                     input.dispatchEvent(new Event('change', { bubbles: true }));
-                    input.dispatchEvent(new Event('blur', { bubbles: true }));
                 }
             """, element, text)
             
-            time.sleep(0.5)
+            time.sleep(0.3)
             actual = element.get_attribute("value")
             actual = actual if actual else ""
-            print(f"After React state manipulation - Expected: {text}, Actual: {actual}")
+            print(f"After JavaScript - Expected: {text}, Actual: {actual}")
 
-        assert actual == text, f"Expected '{text}' but got '{actual}'"
+        assert actual == text, f"Failed to type '{text}'. Got: '{actual}'"
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
