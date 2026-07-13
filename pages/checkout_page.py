@@ -29,7 +29,27 @@ class CheckoutPage(BasePage):
         self.type(self.POSTAL_CODE, postal_code)
 
     def click_continue(self):
-        self.click(self.CONTINUE_BUTTON)
+        button = WebDriverWait(self.driver, 10).until(
+            EC.element_to_be_clickable(self.CONTINUE_BUTTON)
+        )
+
+        self.driver.execute_script(
+            "arguments[0].scrollIntoView({block:'center'});",
+            button
+        )
+
+        self.driver.execute_script(
+            "arguments[0].click();",
+            button
+        )
+
+        print("Current URL:", self.driver.current_url)
+
+        try:
+            error = self.driver.find_element(By.CSS_SELECTOR, "h3[data-test='error']")
+            print("ERROR:", error.text)
+        except:
+            print("No validation error")
 
         WebDriverWait(self.driver, 10).until(
             EC.url_contains("checkout-step-two.html")

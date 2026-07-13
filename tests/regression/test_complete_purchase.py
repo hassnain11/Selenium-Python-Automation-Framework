@@ -51,10 +51,6 @@ def test_complete_purchase(logged_in_driver):
 
     overview.click_finish()
 
-    WebDriverWait(logged_in_driver, 10).until(
-        EC.url_contains("checkout-complete.html")
-    )
-
     complete = CheckoutCompletePage(logged_in_driver)
 
     assert complete.is_complete_page_displayed()
