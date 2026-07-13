@@ -31,11 +31,9 @@ class CheckoutPage(BasePage):
     def click_continue(self):
         self.click(self.CONTINUE_BUTTON)
 
-        WebDriverWait(self.driver,10).until(
-            EC.visibility_of_element_located(
-            (By.ID, "finish")
+        WebDriverWait(self.driver, 10).until(
+            EC.url_contains("checkout-step-two.html")
         )
-    )
 
     def fill_checkout_information(self, first_name, last_name, postal_code):
         self.enter_first_name(first_name)
