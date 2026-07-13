@@ -58,25 +58,24 @@ class BasePage:
             element
         )
 
-        # Wait a moment for the element to be stable
         time.sleep(0.5)
 
-        # Make sure element is focused and ready
+        # Click to focus the element
         element.click()
         time.sleep(0.3)
 
-        # Clear the field using JavaScript and trigger input event
-        self.driver.execute_script("""
-            arguments[0].value = '';
-            arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-            arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-        """, element)
-        
+        # Clear the field using keyboard shortcuts
+        element.send_keys(Keys.CONTROL + "a")
+        element.send_keys(Keys.DELETE)
         time.sleep(0.3)
-        
-        # Send the text
-        element.send_keys(text)
-        time.sleep(0.3)
+
+        # Type the text character by character for natural keyboard simulation
+        print(f"Typing text: {text}")
+        for char in text:
+            element.send_keys(char)
+            time.sleep(0.05)  # Small delay between each character
+
+        time.sleep(0.5)
 
         actual = element.get_attribute("value")
         actual = actual if actual else ""
@@ -84,23 +83,7 @@ class BasePage:
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
 
-        if actual != text:
-            print("Retrying with alternative method...")
-            # Use JavaScript to set the value directly
-            self.driver.execute_script("""
-                arguments[0].focus();
-                arguments[0].value = arguments[1];
-                arguments[0].dispatchEvent(new Event('input', { bubbles: true }));
-                arguments[0].dispatchEvent(new Event('change', { bubbles: true }));
-                arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));
-            """, element, text)
-            time.sleep(0.5)
-            actual = element.get_attribute("value")
-            actual = actual if actual else ""
-            print(f"After retry - Expected: {text}, Actual: {actual}")
-
-        if actual != text:
-            raise AssertionError(f"Failed to type '{text}'. Actual value: '{actual}'")
+        assert actual == text, f"Expected '{text}' but got '{actual}'"
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
