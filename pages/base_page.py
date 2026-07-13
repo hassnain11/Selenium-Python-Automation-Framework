@@ -1,3 +1,5 @@
+from email.mime import text
+
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -38,18 +40,45 @@ class BasePage:
                 element
             )
 
+    
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
 
-        element = self.wait.wait_for_element_visible(locator)
+        element = WebDriverWait(
+        self.driver,
+        10,
+        ignored_exceptions=[StaleElementReferenceException]
+        ).until(
+        EC.visibility_of_element_located(locator)
+        )
 
         self.driver.execute_script(
         "arguments[0].scrollIntoView({block:'center'});",
         element
         )
 
+        element.click()
+
+        element.send_keys(Keys.CONTROL + "a")
+        element.send_keys(Keys.DELETE)
+
+        element.send_keys(text)
+
+        actual = element.get_attribute("value")
+
+        print(f"Expected: {text}")
+        print(f"Actual  : {actual}")
+
+        if actual != text:
+
+            print("Retrying...")
+
         element.clear()
         element.send_keys(text)
+
+        actual = element.get_attribute("value")
+
+        assert actual == text
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")

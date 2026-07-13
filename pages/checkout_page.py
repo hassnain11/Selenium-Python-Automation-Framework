@@ -30,22 +30,22 @@ class CheckoutPage(BasePage):
 
     def click_continue(self):
         button = WebDriverWait(self.driver, 10).until(
-        EC.presence_of_element_located(self.CONTINUE_BUTTON)
-    )
+            EC.presence_of_element_located(self.CONTINUE_BUTTON)
+        )
 
         self.driver.execute_script(
-        "arguments[0].scrollIntoView({block:'center'});",
-        button
-    )
+            "arguments[0].scrollIntoView({block:'center'});",
+            button
+        )
 
         WebDriverWait(self.driver, 2).until(
-        lambda d: button.is_enabled()
-    )
+            lambda d: button.is_enabled()
+        )
 
         self.driver.execute_script(
-        "arguments[0].click();",
-        button
-    )
+            "arguments[0].click();",
+            button
+        )
 
     def fill_checkout_information(self, first_name, last_name, postal_code):
         self.enter_first_name(first_name)

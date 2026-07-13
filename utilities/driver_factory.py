@@ -84,8 +84,6 @@ class DriverFactory:
         if not headless:
             driver.maximize_window()
 
-        driver.implicitly_wait(IMPLICIT_WAIT)
-
         logger.info("WebDriver started successfully.")
         logger.info("=" * 60)
 
