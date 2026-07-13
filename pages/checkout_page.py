@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
-
+from selenium.webdriver.support import expected_conditions as EC
 
 from pages.base_page import BasePage
 
@@ -29,7 +29,23 @@ class CheckoutPage(BasePage):
         self.type(self.POSTAL_CODE, postal_code)
 
     def click_continue(self):
-        self.click(self.CONTINUE_BUTTON)
+        button = WebDriverWait(self.driver, 10).until(
+        EC.presence_of_element_located(self.CONTINUE_BUTTON)
+    )
+
+        self.driver.execute_script(
+        "arguments[0].scrollIntoView({block:'center'});",
+        button
+    )
+
+        WebDriverWait(self.driver, 2).until(
+        lambda d: button.is_enabled()
+    )
+
+        self.driver.execute_script(
+        "arguments[0].click();",
+        button
+    )
 
     def fill_checkout_information(self, first_name, last_name, postal_code):
         self.enter_first_name(first_name)
