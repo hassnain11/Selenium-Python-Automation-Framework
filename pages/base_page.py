@@ -60,20 +60,26 @@ class BasePage:
 
         time.sleep(0.5)
 
-        # Click to focus the element
+        # Triple-click to select all existing content
+        element.click()
+        time.sleep(0.1)
+        element.click()
+        time.sleep(0.1)
         element.click()
         time.sleep(0.3)
 
-        # Clear the field using keyboard shortcuts
+        # Clear using keyboard
         element.send_keys(Keys.CONTROL + "a")
-        element.send_keys(Keys.DELETE)
+        time.sleep(0.1)
+        element.send_keys(Keys.BACKSPACE)
         time.sleep(0.3)
 
-        # Type the text character by character for natural keyboard simulation
         print(f"Typing text: {text}")
+        
+        # Type character by character with longer delays
         for char in text:
             element.send_keys(char)
-            time.sleep(0.05)  # Small delay between each character
+            time.sleep(0.1)  # Increased delay
 
         time.sleep(0.5)
 
@@ -82,6 +88,26 @@ class BasePage:
 
         print(f"Expected: {text}")
         print(f"Actual  : {actual}")
+
+        # If still empty, try JavaScript as final fallback
+        if not actual:
+            print("Value empty after typing. Trying JavaScript assignment...")
+            self.driver.execute_script("""
+                const input = arguments[0];
+                const value = arguments[1];
+                
+                // Set the value
+                input.value = value;
+                
+                // Trigger all necessary events
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+                input.dispatchEvent(new Event('blur', { bubbles: true }));
+            """, element, text)
+            time.sleep(0.5)
+            actual = element.get_attribute("value")
+            actual = actual if actual else ""
+            print(f"After JS fallback - Expected: {text}, Actual: {actual}")
 
         assert actual == text, f"Expected '{text}' but got '{actual}'"
 
