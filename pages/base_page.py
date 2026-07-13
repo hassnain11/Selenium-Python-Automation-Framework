@@ -41,31 +41,15 @@ class BasePage:
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
 
-        element = WebDriverWait(self.driver, 10).until(
-            EC.visibility_of_element_located(locator)
-        )
+        element = self.wait.wait_for_element_visible(locator)
 
         self.driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});",
-            element
+        "arguments[0].scrollIntoView({block:'center'});",
+        element
         )
 
-        self.driver.execute_script(
-            "arguments[0].focus();",
-            element
-        )
-
-        # Clear reliably
-        element.send_keys(Keys.CONTROL, "a")
-        element.send_keys(Keys.DELETE)
-
-        # Type
+        element.clear()
         element.send_keys(text)
-
-        # Wait until the value appears
-        WebDriverWait(self.driver, 5).until(
-            lambda d: element.get_attribute("value") == text
-        )
 
     def get_text(self, locator):
         logger.info(f"Reading text: {locator}")
