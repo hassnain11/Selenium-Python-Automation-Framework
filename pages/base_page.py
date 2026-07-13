@@ -45,23 +45,24 @@ class BasePage:
         logger.info(f"Typing into: {locator}")
 
         element = WebDriverWait(
-        self.driver,
-        10,
-        ignored_exceptions=[StaleElementReferenceException]
+            self.driver,
+            10,
+            ignored_exceptions=[StaleElementReferenceException]
         ).until(
-        EC.visibility_of_element_located(locator)
+            EC.visibility_of_element_located(locator)
         )
 
         self.driver.execute_script(
-        "arguments[0].scrollIntoView({block:'center'});",
-        element
+            "arguments[0].scrollIntoView({block:'center'});",
+            element
         )
 
         element.click()
 
-        element.send_keys(Keys.CONTROL + "a")
-        element.send_keys(Keys.DELETE)
-
+        # Clear the field using JavaScript for better reliability
+        self.driver.execute_script("arguments[0].value = '';", element)
+        
+        # Send the text
         element.send_keys(text)
 
         actual = element.get_attribute("value")
@@ -70,13 +71,10 @@ class BasePage:
         print(f"Actual  : {actual}")
 
         if actual != text:
-
             print("Retrying...")
-
-        element.clear()
-        element.send_keys(text)
-
-        actual = element.get_attribute("value")
+            element.clear()
+            element.send_keys(text)
+            actual = element.get_attribute("value")
 
         assert actual == text
 
