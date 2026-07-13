@@ -18,21 +18,21 @@ class BasePage:
 
         element = self.wait.wait_for_element_clickable(locator)
 
-        self.driver.execute_script(
-            "arguments[0].scrollIntoView({block:'center'});",
-            element
-        )
-
         try:
             element.click()
 
-        except Exception:
-            logger.warning("Using JS click")
+        except (WebDriverException, StaleElementReferenceException):
 
-        self.driver.execute_script(
-            "arguments[0].click();",
-            element
-        )
+            logger.warning(
+                f"Normal click failed. Using JavaScript click for {locator}"
+            )
+
+            element = self.wait.wait_for_element_clickable(locator)
+
+            self.driver.execute_script(
+                "arguments[0].click();",
+                element
+            )
 
     def type(self, locator, text):
         logger.info(f"Typing into: {locator}")
