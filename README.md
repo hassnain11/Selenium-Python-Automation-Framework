@@ -303,7 +303,6 @@ Software Quality Assurance Engineer
 
 GitHub: https://github.com/hassnain11
 
-LinkedIn: *(Add your LinkedIn profile link here.)*
 
 ---
 
